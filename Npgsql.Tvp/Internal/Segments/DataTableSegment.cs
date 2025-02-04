@@ -1,5 +1,4 @@
 ﻿using Npgsql.Internal;
-using Npgsql.PostgresTypes;
 
 using Npgsql.Tvp.Internal.Segments.Abstract;
 
@@ -85,20 +84,6 @@ namespace Npgsql.Tvp.Internal.Segments
             get => 1;
         }
 
-        /// <summary>
-        /// Throws an 
-        /// exception if the table columns 
-        /// do not match to composite type 
-        /// fields.
-        /// </summary>
-        private void ThrowIfMismatch(PostgresCompositeType pgType, DataTable dt)
-        {
-            for (int i = 0; i < pgType.Fields.Count; i++)
-            {
-                _ = dt.Columns[pgType.Fields[i].Name] ?? throw new InvalidOperationException($"{ pgType.Fields[i].Name } not found in { pgType }");
-            }
-        }
-
         /// <inheritdoc/>
         public IEnumerator<DataTableClassSegment> GetEnumerator()
         {
@@ -121,18 +106,16 @@ namespace Npgsql.Tvp.Internal.Segments
             ArrayPool<DataTableFieldSegment>.Shared.Return(_fieldBuffer, true);
         }
 
-        public DataTableSegment(PostgresCompositeType pgType, PgSerializerOptions options, DataTable dt) : base(pgType.OID)
+        public DataTableSegment(PgSerializerOptions options, DataTable dt) : base(default)
         {
-            ThrowIfMismatch(pgType, dt);
-
             Length = dt.Rows.Count;
 
             _classBuffer = ArrayPool<DataTableClassSegment>.Shared.Rent(Length);
-            _fieldBuffer = ArrayPool<DataTableFieldSegment>.Shared.Rent(Length * pgType.Fields.Count);
+            _fieldBuffer = ArrayPool<DataTableFieldSegment>.Shared.Rent(Length * dt.Columns.Count);
 
             for (int i = 0; i < Length; i++)
             {
-                _classBuffer[i] = new DataTableClassSegment(new ArraySegment<DataTableFieldSegment>(_fieldBuffer, i * pgType.Fields.Count, pgType.Fields.Count), pgType, options, dt.Columns, dt.Rows[i]);
+                _classBuffer[i] = new DataTableClassSegment(new ArraySegment<DataTableFieldSegment>(_fieldBuffer, i * dt.Columns.Count, dt.Columns.Count), options, dt.Columns, dt.Rows[i]);
 
                 SizeOverall += _classBuffer[i].SizeOverall;
             }

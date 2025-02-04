@@ -35,17 +35,10 @@ dt.Rows.Add("Column1_value", "Column2_value", "Column3");
 
 using (NpgsqlCommand cmd = new NpgsqlCommand("CALL schema.storedProcedure(@arg)", connection))
 {
-    NpgsqlParameter arg = new
-    NpgsqlParameter
-    (nameof(arg), dt)
-    {
-        DataTypeName = "schema._compositeType"
-    };
-
-    cmd.Parameters.Add(arg);
+    cmd.Parameters.Add(new NpgsqlParameter(nameof(arg), dt))
 
     cmd.ExecuteNonQuery();
 }
 ```
 
-Initialization of `TableName` and `DataTypeName` is mandatory! The values must correspond to the name of the composite type in the database. Additionally, for `DataTypeName`, the array notation must be used: `schema._compositeType`, as the plugin essentially treats `DataTable` as an array of composite types.
+Initialization of `TableName` is required!

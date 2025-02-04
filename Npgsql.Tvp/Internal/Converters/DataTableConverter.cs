@@ -1,5 +1,4 @@
 ﻿using Npgsql.Internal;
-using Npgsql.PostgresTypes;
 
 using Npgsql.Tvp.Internal.Segments;
 
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Npgsql.Tvp.Internal.Converters
 {
-    internal sealed class DataTableConverter<TTable>(PostgresCompositeType pgType, PgSerializerOptions options) : PgStreamingConverter<TTable> where TTable : DataTable
+    internal sealed class DataTableConverter<TTable>(PgSerializerOptions options) : PgStreamingConverter<TTable> where TTable : DataTable
     {
         /// <inheritdoc/>
         public override TTable Read(PgReader reader)
@@ -30,7 +29,7 @@ namespace Npgsql.Tvp.Internal.Converters
         {
             DataTableSegment segment = new
             DataTableSegment
-            (pgType, options, value);
+            (options, value);
 
             writeState = segment;
 

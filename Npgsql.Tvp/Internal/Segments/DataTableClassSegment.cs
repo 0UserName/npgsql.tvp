@@ -1,7 +1,4 @@
 ﻿using Npgsql.Internal;
-using Npgsql.Internal.Postgres;
-
-using Npgsql.PostgresTypes;
 
 using System;
 using System.Collections;
@@ -65,13 +62,13 @@ namespace Npgsql.Tvp.Internal.Segments
             return GetEnumerator();
         }
 
-        public DataTableClassSegment(ArraySegment<DataTableFieldSegment> fieldBuffer, PostgresCompositeType pgType, PgSerializerOptions options, DataColumnCollection columns, DataRow row)
+        public DataTableClassSegment(ArraySegment<DataTableFieldSegment> fieldBuffer, PgSerializerOptions options, DataColumnCollection columns, DataRow row)
         {
             _fieldBuffer = fieldBuffer;
 
             for (int i = 0; i < Length; i++)
             {
-                _fieldBuffer[i] = new DataTableFieldSegment(row[columns[pgType.Fields[i].Name]], options.GetDefaultTypeInfo((Oid)pgType.Fields[i].Type.OID));
+                _fieldBuffer[i] = new DataTableFieldSegment(row[columns[i]], options.GetDefaultTypeInfo(columns[i].DataType));
 
                 if (!_fieldBuffer[i].IsNull)
                 {
