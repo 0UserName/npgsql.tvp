@@ -71,7 +71,7 @@ namespace Npgsql.Tvp.Internal.Segments
 
             for (int i = 0; i < Length; i++)
             {
-                _fieldBuffer[i] = new DataTableFieldSegment(row[columns[pgType.Fields[i].Name]], columns[pgType.Fields[i].Name].DataType, options.GetDefaultTypeInfo((Oid)pgType.Fields[i].Type.OID));
+                _fieldBuffer[i] = new DataTableFieldSegment(row[columns[pgType.Fields[i].Name]], options.GetDefaultTypeInfo((Oid)pgType.Fields[i].Type.OID));
 
                 if (!_fieldBuffer[i].IsNull)
                 {

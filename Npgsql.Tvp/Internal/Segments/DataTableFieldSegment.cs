@@ -4,11 +4,10 @@ using Npgsql.Tvp.Internal.Accessors;
 using Npgsql.Tvp.Internal.Segments.Abstract;
 
 using System;
-using System.Runtime.InteropServices;
 
 namespace Npgsql.Tvp.Internal.Segments
 {
-    internal sealed class DataTableFieldSegment(object payload, Type type, PgTypeInfo typeInfo) : AbstractTyped(typeInfo.PgTypeId.Value.Oid.Value)
+    internal sealed class DataTableFieldSegment(object payload, PgTypeInfo pgTypeInfo) : AbstractTyped(pgTypeInfo.PgTypeId.Value.Oid.Value)
     {
         private object _writeState;
 
@@ -41,7 +40,7 @@ namespace Npgsql.Tvp.Internal.Segments
         /// </summary>
         public PgConverter Converter
         {
-            get => typeInfo.GetObjectResolution(Payload).Converter;
+            get => pgTypeInfo.GetObjectResolution(Payload).Converter;
         }
 
         /// <summary>
@@ -64,7 +63,7 @@ namespace Npgsql.Tvp.Internal.Segments
                 return -1;
             }
 
-            return type.IsValueType ? Marshal.SizeOf(Payload) : _PgConverter.GetSize(Converter, default, Payload, ref _writeState).Value;
+            return Converter.CanConvert(DataFormat.Binary, out BufferRequirements requirements) && requirements.Write.Kind == SizeKind.Exact ? requirements.Write.Value : _PgConverter.GetSize(Converter, default, Payload, ref _writeState).Value;
         }
     }
 }
