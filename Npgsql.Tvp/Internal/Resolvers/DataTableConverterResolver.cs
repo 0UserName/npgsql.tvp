@@ -8,7 +8,7 @@ using System.Data;
 
 namespace Npgsql.Tvp.Internal.Resolvers
 {
-    internal class DataTableConverterResolver<TTable>(PgSerializerOptions options) : PgConverterResolver<TTable> where TTable : DataTable
+    internal sealed class DataTableConverterResolver<TTable>(PgSerializerOptions options) : PgConverterResolver<TTable> where TTable : DataTable
     {
         private DataTableConverter<TTable> _converter;
 

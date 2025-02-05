@@ -11,7 +11,7 @@ namespace Npgsql.Tvp.Internal.Resolvers
         /// <inheritdoc/>
         public PgTypeInfo? GetTypeInfo(Type? type, DataTypeName? dataTypeName, PgSerializerOptions options)
         {
-            return type == typeof(TTable) ? new PgResolverTypeInfo(options, new DataTableConverterResolver<TTable>(options), default, type) : default;
+            return type == typeof(TTable) ? new PgResolverTypeInfo(options, new DataTableConverterResolver<TTable>(options), default) : default;
         }
     }
 }
