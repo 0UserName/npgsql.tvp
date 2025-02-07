@@ -46,6 +46,14 @@ namespace Npgsql.Tvp.Internal.Segments
         /// <summary>
         /// 
         /// </summary>
+        public BufferRequirements BufferRequirements
+        {
+            get => pgTypeInfo.GetBufferRequirements(Converter, DataFormat.Binary) ?? throw new NotSupportedException($"Binary format is not supported: { pgTypeInfo.PgTypeId }");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public object WriteState
         {
             get => _writeState;
@@ -63,7 +71,7 @@ namespace Npgsql.Tvp.Internal.Segments
                 return -1;
             }
 
-            return Converter.CanConvert(DataFormat.Binary, out BufferRequirements requirements) && requirements.Write.Kind == SizeKind.Exact ? requirements.Write.Value : _PgConverter.GetSize(Converter, default, Payload, ref _writeState).Value;
+            return BufferRequirements.Write.Kind == SizeKind.Exact ? BufferRequirements.Write.Value : _PgConverter.GetSize(Converter, default, Payload, ref _writeState).Value;
         }
     }
 }
