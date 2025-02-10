@@ -13,24 +13,32 @@ namespace Npgsql.Tvp.Internal.Segments
         private readonly ArraySegment<DataTableFieldSegment> _fieldBuffer;
 
         /// <summary>
-        /// Sum of 
-        /// the headers 
-        /// sizes.
+        /// Sum of the sizes of the headers of one column.
+        /// </summary>
+        /// 
+        /// 
+        /// <remarks>
+        /// See also: <seealso cref="SizeHeadersOveral"/>.
+        /// </remarks>
+        public static int SizeHeaders
+        {
+            get => sizeof(uint) + sizeof(int);
+        }
+
+        /// <summary>
+        /// Sum of the sizes of all column headers.
         /// </summary>
         /// 
         /// <remarks>
         /// See also: <seealso cref="SizeOverall"/>.
         /// </remarks>
-        public int SizeHeaders
+        public int SizeHeadersOveral
         {
-            get => sizeof(int) + Length * (sizeof(uint) + sizeof(int));
+            get => sizeof(int) + Length * SizeHeaders;
         }
 
         /// <summary>
-        /// Sum of 
-        /// the headers 
-        /// and payload 
-        /// sizes. 
+        /// Sum of the headers and payload sizes. 
         /// </summary>
         /// 
         /// <remarks>
@@ -62,13 +70,13 @@ namespace Npgsql.Tvp.Internal.Segments
             return GetEnumerator();
         }
 
-        public DataTableClassSegment(ArraySegment<DataTableFieldSegment> fieldBuffer, PgSerializerOptions options, DataColumnCollection columns, DataRow row)
+        public DataTableClassSegment(ArraySegment<DataTableFieldSegment> fieldBuffer, PgSerializerOptions options, DataRow row)
         {
             _fieldBuffer = fieldBuffer;
 
             for (int i = 0; i < Length; i++)
             {
-                _fieldBuffer[i] = new DataTableFieldSegment(row[columns[i]], options.GetDefaultTypeInfo(columns[i].DataType));
+                _fieldBuffer[i] = new DataTableFieldSegment(row[row.Table.Columns[i]], options.GetDefaultTypeInfo(row.Table.Columns[i].DataType));
 
                 if (!_fieldBuffer[i].IsNull)
                 {
@@ -76,7 +84,7 @@ namespace Npgsql.Tvp.Internal.Segments
                 }
             }
 
-            SizeOverall += SizeHeaders;
+            SizeOverall += SizeHeadersOveral;
         }
     }
 }

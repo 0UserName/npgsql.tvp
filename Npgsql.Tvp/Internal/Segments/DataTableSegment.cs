@@ -1,7 +1,5 @@
 ﻿using Npgsql.Internal;
 
-using Npgsql.Tvp.Internal.Segments.Abstract;
-
 using System;
 using System.Buffers;
 
@@ -12,15 +10,16 @@ using System.Data;
 
 namespace Npgsql.Tvp.Internal.Segments
 {
-    internal sealed class DataTableSegment : AbstractTyped, IEnumerable<DataTableClassSegment>, IDisposable
+    internal sealed class DataTableSegment : IEnumerable<DataTableClassSegment>, IDisposable
     {
         private readonly DataTableClassSegment[] _classBuffer;
         private readonly DataTableFieldSegment[] _fieldBuffer;
 
         /// <summary>
-        /// Sum of 
-        /// the headers 
-        /// sizes.
+        /// Sum 
+        /// of the sizes 
+        /// of the table 
+        /// headers.
         /// </summary>
         /// 
         /// <remarks>
@@ -50,7 +49,7 @@ namespace Npgsql.Tvp.Internal.Segments
         /// <remarks>
         /// Only one dimension is supported.
         /// </remarks>
-        public int Dimensions
+        public static int Dimensions
         {
             get => 1;
         }
@@ -62,9 +61,19 @@ namespace Npgsql.Tvp.Internal.Segments
         /// <remarks>
         /// Not really used.
         /// </remarks>
-        public int Flags
+        public static int Flags
         {
-            get => 0;
+            get => default;
+        }
+
+        /// <summary>
+        /// A data type used for
+        /// identifying internal 
+        /// objects.
+        /// </summary>
+        public static uint Oid
+        {
+            get => default;
         }
 
         /// <summary>
@@ -79,7 +88,7 @@ namespace Npgsql.Tvp.Internal.Segments
         /// <summary>
         /// Index of the first row.
         /// </summary>
-        public int LowerBound
+        public static int LowerBound
         {
             get => 1;
         }
@@ -106,7 +115,7 @@ namespace Npgsql.Tvp.Internal.Segments
             ArrayPool<DataTableFieldSegment>.Shared.Return(_fieldBuffer, true);
         }
 
-        public DataTableSegment(PgSerializerOptions options, DataTable dt) : base(default)
+        public DataTableSegment(PgSerializerOptions options, DataTable dt)
         {
             Length = dt.Rows.Count;
 
@@ -115,7 +124,7 @@ namespace Npgsql.Tvp.Internal.Segments
 
             for (int i = 0; i < Length; i++)
             {
-                _classBuffer[i] = new DataTableClassSegment(new ArraySegment<DataTableFieldSegment>(_fieldBuffer, i * dt.Columns.Count, dt.Columns.Count), options, dt.Columns, dt.Rows[i]);
+                _classBuffer[i] = new DataTableClassSegment(new ArraySegment<DataTableFieldSegment>(_fieldBuffer, i * dt.Columns.Count, dt.Columns.Count), options, dt.Rows[i]);
 
                 SizeOverall += _classBuffer[i].SizeOverall;
             }

@@ -1,15 +1,22 @@
 ﻿using Npgsql.Internal;
 
 using Npgsql.Tvp.Internal.Accessors;
-using Npgsql.Tvp.Internal.Segments.Abstract;
 
 using System;
 
 namespace Npgsql.Tvp.Internal.Segments
 {
-    internal sealed class DataTableFieldSegment(object payload, PgTypeInfo pgTypeInfo) : AbstractTyped(pgTypeInfo.PgTypeId.Value.Oid.Value)
+    internal sealed class DataTableFieldSegment(object payload, PgTypeInfo pgTypeInfo)
     {
         private object _writeState;
+
+        /// <summary>
+        /// Sum of the column header sizes.
+        /// </summary>
+        public static int SizeHeaders
+        {
+            get => sizeof(int) + sizeof(int);
+        }
 
         /// <summary>
         /// Size of the column value.
@@ -17,6 +24,16 @@ namespace Npgsql.Tvp.Internal.Segments
         public int SizePayload
         {
             get => CalculateSizePayload();
+        }
+
+        /// <summary>
+        /// A data type used for
+        /// identifying internal 
+        /// objects.
+        /// </summary>
+        public uint Oid
+        {
+            get => pgTypeInfo.PgTypeId.Value.Oid.Value;
         }
 
         /// <summary>
