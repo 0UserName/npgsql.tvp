@@ -13,7 +13,10 @@ namespace Npgsql.Tvp.Internal.Segments
         private readonly ArraySegment<DataTableFieldSegment> _fieldBuffer;
 
         /// <summary>
-        /// Sum of the sizes of the headers of one column.
+        /// Sum 
+        /// of the sizes of 
+        /// the headers for 
+        /// a single column.
         /// </summary>
         /// 
         /// 
@@ -26,7 +29,7 @@ namespace Npgsql.Tvp.Internal.Segments
         }
 
         /// <summary>
-        /// Sum of the sizes of all column headers.
+        /// Sum of the sizes for all column headers.
         /// </summary>
         /// 
         /// <remarks>
@@ -38,7 +41,7 @@ namespace Npgsql.Tvp.Internal.Segments
         }
 
         /// <summary>
-        /// Sum of the headers and payload sizes. 
+        /// Sum of the headers and payload sizes.
         /// </summary>
         /// 
         /// <remarks>
