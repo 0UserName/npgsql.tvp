@@ -29,7 +29,9 @@ namespace Npgsql.Tvp.Internal.Segments
         }
 
         /// <summary>
-        /// Sum of the sizes for all column headers.
+        /// Sum of the sizes for 
+        /// all column 
+        /// headers.
         /// </summary>
         /// 
         /// <remarks>
@@ -41,7 +43,10 @@ namespace Npgsql.Tvp.Internal.Segments
         }
 
         /// <summary>
-        /// Sum of the headers and payload sizes.
+        /// Sum of 
+        /// the headers 
+        /// and payload 
+        /// sizes. 
         /// </summary>
         /// 
         /// <remarks>

@@ -45,10 +45,6 @@ namespace Npgsql.Tvp.Internal.Segments
         /// <summary>
         /// Number of dimensions.
         /// </summary>
-        ///
-        /// <remarks>
-        /// Only one dimension is supported.
-        /// </remarks>
         public static int Dimensions
         {
             get => 1;
@@ -96,10 +92,7 @@ namespace Npgsql.Tvp.Internal.Segments
         /// <inheritdoc/>
         public IEnumerator<DataTableClassSegment> GetEnumerator()
         {
-            for (int i = 0; i < Length; i++)
-            {
-                yield return _classBuffer[i];
-            }
+            return new ArraySegment<DataTableClassSegment>(_classBuffer, default, Length).GetEnumerator();
         }
 
         /// <inheritdoc/>
