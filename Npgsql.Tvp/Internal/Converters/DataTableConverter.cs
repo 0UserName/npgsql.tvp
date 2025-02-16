@@ -1,7 +1,5 @@
 ﻿using Npgsql.Internal;
 
-using Npgsql.Tvp.Internal.Segments;
-
 using System;
 using System.Data;
 
@@ -45,7 +43,7 @@ namespace Npgsql.Tvp.Internal.Converters
         /// <inheritdoc/>
         public override ValueTask WriteAsync(PgWriter writer, TTable value, CancellationToken cancellationToken = default)
         {
-            return DataTableWriter.WriteAsync(writer, cancellationToken);
+            return DataTableWriter.WriteAsync(writer, options, cancellationToken);
         }
     }
 }

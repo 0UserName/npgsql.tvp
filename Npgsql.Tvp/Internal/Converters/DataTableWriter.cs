@@ -1,7 +1,9 @@
 ﻿using Npgsql.Internal;
 
 using Npgsql.Tvp.Internal.Accessors;
-using Npgsql.Tvp.Internal.Segments;
+
+using System;
+using System.Data;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +12,46 @@ namespace Npgsql.Tvp.Internal.Converters
 {
     internal static class DataTableWriter
     {
+        [ThreadStatic]
+        private static object _writeState;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static PgTypeInfo GetPgTypeInfo(PgSerializerOptions options, Type type)
+        {
+            return options.GetDefaultTypeInfo(type);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static PgConverter GetPgConverter(PgTypeInfo pgTypeInfo, object payload)
+        {
+            return pgTypeInfo.GetObjectResolution(payload).Converter;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static BufferRequirements BufferRequirements(PgTypeInfo pgTypeInfo, object payload)
+        {
+            return pgTypeInfo.GetBufferRequirements(GetPgConverter(pgTypeInfo, payload), DataFormat.Binary) ?? throw new NotSupportedException($"Binary format is not supported: {pgTypeInfo.PgTypeId}");
+        }
+
+        /// <summary>
+        /// Calculates the payload size in bytes.
+        /// </summary>
+        private static int GetPayloadSize(PgConverter pgConverter, BufferRequirements bufferRequirements, object payload)
+        {
+            if (payload == DBNull.Value)
+            {
+                return -1;
+            }
+
+            return bufferRequirements.Write.Kind == SizeKind.Exact ? bufferRequirements.Write.Value : _PgConverter.GetSize(pgConverter, default, payload, ref _writeState).Value;
+        }
+
         /// <summary>
         /// Writes 
         /// the binary representation of DataTable: 
@@ -17,68 +59,75 @@ namespace Npgsql.Tvp.Internal.Converters
         /// of type T, where T is a composite type 
         /// described by columns.
         /// </summary>
-        public static async ValueTask WriteAsync(PgWriter writer, CancellationToken cancellationToken)
+        public static async ValueTask WriteAsync(PgWriter writer, PgSerializerOptions options, CancellationToken cancellationToken)
         {
-            DataTableSegment table = writer.Current.WriteState as DataTableSegment;
+            DataTable dt = writer.Current.WriteState as DataTable;
 
-            if (writer.ShouldFlush(table.SizeHeaders))
+            if (writer.ShouldFlush(DataTableSizes.GetDataTable(dt.Rows.Count)))
             {
                 await writer.FlushAsync(cancellationToken).ConfigureAwait(default);
             }
 
             // 4 bytes with number of dimensions.
-            writer.WriteInt32(DataTableSegment.Dimensions);
+            writer.WriteInt32(1);
 
             // 4 bytes, boolean
             // indicating nulls
             // present or not.
-            writer.WriteInt32(DataTableSegment.Flags);
+            writer.WriteInt32(0);
 
             // 4 bytes array type OID.
-            writer.WriteUInt32(DataTableSegment.Oid);
+            writer.WriteUInt32(0);
 
             // 4 bytes for length.
-            writer.WriteInt32(table.Length);
+            writer.WriteInt32(dt.Rows.Count);
 
             // 4 bytes for lower bound on length
             // to check for overflow (it appears
             // this value can always be 0).
-            writer.WriteInt32(DataTableSegment.LowerBound);
+            writer.WriteInt32(0);
 
 
-            foreach (DataTableClassSegment row in table)
+            foreach (DataRow row in dt.Rows)
             {
-                if (writer.ShouldFlush(DataTableClassSegment.SizeHeaders))
+                if (writer.ShouldFlush(DataTableSizes.DataColumn))
                 {
                     await writer.FlushAsync(cancellationToken).ConfigureAwait(default);
                 }
 
+                // writer
+                //     .WriteInt32(row.SizeOverall);
                 writer
-                    .WriteInt32(row.SizeOverall);
-                writer
-                    .WriteInt32(row.Length);
+                    .WriteInt32(dt.Columns.Count);
 
-
-                foreach (DataTableFieldSegment column in row)
+                for (int i = 0; i < dt.Columns.Count; i++)
                 {
-                    if (writer.ShouldFlush(DataTableFieldSegment.SizeHeaders))
+                    object payload = row.ItemArray[i];
+
+                    if (writer.ShouldFlush(DataTableSizes.DataRow))
                     {
                         await writer.FlushAsync(cancellationToken).ConfigureAwait(default);
                     }
 
+                    PgTypeInfo pgTypeInfo = GetPgTypeInfo(options, dt.Columns[i].DataType);
+
+                    BufferRequirements bufferRequirements = BufferRequirements(pgTypeInfo, payload);
+
                     // 4 bytes elemen type OID.
-                    writer.WriteUInt32(column.Oid);
+                    writer.WriteUInt32(pgTypeInfo.PgTypeId.Value.Oid.Value);
+
+                    int size = GetPayloadSize(GetPgConverter(pgTypeInfo, payload), bufferRequirements, payload);
 
                     // 4 bytes describing length
                     // of element, -1 means null.
-                    writer.WriteInt32(column.SizePayload);
+                    writer.WriteInt32(size);
 
-                    if (!column.IsNull)
+                    if (payload != DBNull.Value)
                     {
-                        using (await writer.BeginNestedWriteAsync(column.BufferRequirements.Write, column.SizePayload, column.WriteState, cancellationToken))
+                        using (await writer.BeginNestedWriteAsync(bufferRequirements.Write, size, _writeState, cancellationToken))
                         {
                             // Binary representation of element.
-                            await _PgConverter.WriteValueAsync(column.Converter, writer, column.Payload, cancellationToken).ConfigureAwait(default);
+                            await _PgConverter.WriteValueAsync(GetPgConverter(pgTypeInfo, payload), writer, payload, cancellationToken).ConfigureAwait(default);
                         }
                     }
                 }
