@@ -1,7 +1,7 @@
 ﻿using Npgsql.Internal;
 
 using Npgsql.Tvp.Internal.Accessors;
-using Npgsql.Tvp.Internal.Segments;
+using Npgsql.Tvp.Internal.Converters.Models;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,74 +11,78 @@ namespace Npgsql.Tvp.Internal.Converters
     internal static class DataTableWriter
     {
         /// <summary>
-        /// Writes 
-        /// the binary representation of DataTable: 
-        /// set of rows is interpreted as an array 
-        /// of type T, where T is a composite type 
-        /// described by columns.
+        /// 
         /// </summary>
         public static async ValueTask WriteAsync(PgWriter writer, CancellationToken cancellationToken)
         {
-            DataTableSegment table = writer.Current.WriteState as DataTableSegment;
+            Table table = writer.Current.WriteState as Table;
 
-            if (writer.ShouldFlush(table.SizeHeaders))
+            if (writer.ShouldFlush(table.HeadersSize))
             {
                 await writer.FlushAsync(cancellationToken).ConfigureAwait(default);
             }
 
             // 4 bytes with number of dimensions.
-            writer.WriteInt32(DataTableSegment.Dimensions);
+            writer.WriteInt32(Table.DIMENSIONS);
 
             // 4 bytes, boolean
             // indicating nulls
             // present or not.
-            writer.WriteInt32(DataTableSegment.Flags);
+            writer.WriteInt32(Table.FLAGS);
 
             // 4 bytes array type OID.
-            writer.WriteUInt32(DataTableSegment.Oid);
+            writer.WriteUInt32(Table.Oid);
 
             // 4 bytes for length.
-            writer.WriteInt32(table.Length);
+            writer.WriteInt32(table.ClassLength);
 
             // 4 bytes for lower bound on length
             // to check for overflow (it appears
             // this value can always be 0).
-            writer.WriteInt32(DataTableSegment.LowerBound);
+            writer.WriteInt32(Table.LOWER_BOUND);
 
-
-            foreach (DataTableClassSegment row in table)
+            using (table)
             {
-                if (writer.ShouldFlush(DataTableClassSegment.SizeHeaders))
+                for (int r = 0; r < table.ClassLength; r++)
                 {
-                    await writer.FlushAsync(cancellationToken).ConfigureAwait(default);
-                }
+                    Class row = table[r];
 
-                writer
-                    .WriteInt32(row.SizeOverall);
-                writer
-                    .WriteInt32(row.Length);
-
-
-                foreach (DataTableFieldSegment column in row)
-                {
-                    if (writer.ShouldFlush(DataTableFieldSegment.SizeHeaders))
+                    if (writer.ShouldFlush(Field.HEADERS_SIZE))
                     {
                         await writer.FlushAsync(cancellationToken).ConfigureAwait(default);
                     }
 
-                    // 4 bytes elemen type OID.
-                    writer.WriteUInt32(column.Oid);
+                    writer
+                        .WriteInt32(row.Size);
+                    writer
+                        .WriteInt32(table.FieldLength);
 
-                    // 4 bytes describing length
-                    // of element, -1 means null.
-                    writer.WriteInt32(column.SizePayload);
 
-                    if (!column.IsNull)
+                    for (int c = 0; c < table.FieldLength; c++)
                     {
-                        using (await writer.BeginNestedWriteAsync(column.BufferRequirements.Write, column.SizePayload, column.WriteState, cancellationToken))
+                        Field column = row[c];
+
+                        if (writer.ShouldFlush(Field.HEADERS_SIZE))
                         {
+                            await writer.FlushAsync(cancellationToken).ConfigureAwait(default);
+                        }
+
+                        // 4 bytes elemen type OID.
+                        writer.WriteUInt32(column.Oid);
+
+                        // 4 bytes describing length
+                        // of element, -1 means null.
+                        writer.WriteInt32(column.ValueSize);
+
+                        if (!column.IsDbNull())
+                        {
+                            if (writer.ShouldFlush(column.ValueSize))
+                            {
+                                await writer.FlushAsync(cancellationToken).ConfigureAwait(default);
+                            }
+
                             // Binary representation of element.
-                            await _PgConverter.WriteValueAsync(column.Converter, writer, column.Payload, cancellationToken).ConfigureAwait(default);
+                            await _PgConverter.WriteAsObjectAsync(column.GetConverter(), writer, column.Value, cancellationToken).ConfigureAwait(default);
                         }
                     }
                 }
