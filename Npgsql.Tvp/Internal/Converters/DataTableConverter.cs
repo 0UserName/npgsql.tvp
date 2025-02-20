@@ -1,6 +1,6 @@
 ﻿using Npgsql.Internal;
 
-using Npgsql.Tvp.Internal.Segments;
+using Npgsql.Tvp.Internal.Converters.Models;
 
 using System;
 using System.Data;
@@ -27,13 +27,13 @@ namespace Npgsql.Tvp.Internal.Converters
         /// <inheritdoc/>
         public override Size GetSize(SizeContext context, TTable value, ref object writeState)
         {
-            DataTableSegment segment = new
-            DataTableSegment
-            (options, value);
+            Table table = new
+            Table
+            (value, options);
 
-            writeState = segment;
+            writeState = table;
 
-            return segment.SizeOverall;
+            return table.TotalSize;
         }
 
         /// <inheritdoc/>

@@ -1,4 +1,6 @@
 ﻿using Npgsql.Internal;
+
+using System;
 using System.Runtime.CompilerServices;
 
 using System.Threading;
@@ -6,12 +8,20 @@ using System.Threading.Tasks;
 
 namespace Npgsql.Tvp.Internal.Accessors
 {
+    [Obsolete("Used until the required methods become public")]
     internal static class _PgConverter
     {
-        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "GetSizeAsObject")]
-        public extern static Size GetSize(PgConverter converter, SizeContext context, object value, ref object writeState);
+        /// <summary>
+        /// 
+        /// </summary>
+        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(GetSizeAsObject))]
+        public extern static Size GetSizeAsObject(PgConverter converter, SizeContext context, object value, ref object writeState);
 
-        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = "WriteAsObjectAsync")]
-        public extern static ValueTask WriteValueAsync(PgConverter converter, PgWriter writer, object value, CancellationToken cancellationToken);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(WriteAsObjectAsync))]
+        public extern static ValueTask WriteAsObjectAsync(PgConverter converter, PgWriter writer, object value, CancellationToken cancellationToken);
     }
 }
