@@ -32,7 +32,7 @@ namespace Npgsql.Tvp.Internal.Converters.Models
         /// <summary>
         /// Size of the column value.
         /// </summary>
-        public int ValueSize
+        public int Size
         {
             get => this.GetSizeOrDbNullAsObject(default);
         }

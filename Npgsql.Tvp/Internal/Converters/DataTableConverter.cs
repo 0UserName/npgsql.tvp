@@ -33,7 +33,7 @@ namespace Npgsql.Tvp.Internal.Converters
 
             writeState = table;
 
-            return table.TotalSize;
+            return table.GetTableSize();
         }
 
         /// <inheritdoc/>

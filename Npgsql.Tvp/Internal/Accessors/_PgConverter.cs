@@ -20,7 +20,6 @@ namespace Npgsql.Tvp.Internal.Accessors
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
         [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(WriteAsObjectAsync))]
         public extern static ValueTask WriteAsObjectAsync(PgConverter converter, PgWriter writer, object value, CancellationToken cancellationToken);
     }
