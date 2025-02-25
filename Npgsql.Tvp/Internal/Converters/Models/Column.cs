@@ -4,7 +4,7 @@ using System;
 
 namespace Npgsql.Tvp.Internal.Converters.Models
 {
-    internal readonly struct Field(object value, PgTypeInfo pgTypeInfo)
+    internal readonly struct Column(object value, PgTypeInfo pgTypeInfo)
     {
         /// <summary>
         /// Size of the column headers.
@@ -34,6 +34,14 @@ namespace Npgsql.Tvp.Internal.Converters.Models
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public bool IsDbNull
+        {
+            get => value == DBNull.Value;
+        }
+
+        /// <summary>
         /// Size of the column value.
         /// </summary>
         public int Size
@@ -44,17 +52,17 @@ namespace Npgsql.Tvp.Internal.Converters.Models
         /// <summary>
         /// 
         /// </summary>
-        public PgConverter GetConverter()
+        public PgConverter Converter
         {
-            return pgTypeInfo.GetObjectResolution(value).Converter;
+            get => pgTypeInfo.GetObjectResolution(value).Converter;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public BufferRequirements GetBufferRequirements()
+        public BufferRequirements BufferRequirements
         {
-            return pgTypeInfo.GetBufferRequirements(GetConverter(), DataFormat.Binary) ?? throw new NotSupportedException($"Binary format is not supported: { pgTypeInfo.PgTypeId }");
+            get => pgTypeInfo.GetBufferRequirements(Converter, DataFormat.Binary) ?? throw new NotSupportedException($"Binary format is not supported: { pgTypeInfo.PgTypeId }");
         }
     }
 }

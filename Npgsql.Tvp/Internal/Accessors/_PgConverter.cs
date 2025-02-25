@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Npgsql.Tvp.Internal.Accessors
 {
-    [Obsolete("Used until the required methods become public")]
+    [Obsolete("Used until the same methods from Npgsql become public")]
     internal static class _PgConverter
     {
         /// <summary>
