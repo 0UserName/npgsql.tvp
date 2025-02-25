@@ -1,6 +1,4 @@
-﻿![GitHub Build Status](https://github.com/0UserName/npgsql.tvp/actions/workflows/main.yml/badge.svg)
-
-This package is an Npgsql plugin which allows you to use the [DataTable](https://learn.microsoft.com/en-us/dotnet/api/system.data.datatable?view=net-9.0) type when interacting with PostgreSQL.
+﻿This package is an Npgsql plugin which allows you to use the [DataTable](https://learn.microsoft.com/en-us/dotnet/api/system.data.datatable?view=net-9.0) type when interacting with PostgreSQL.
 
 # Motivation
 
@@ -25,7 +23,7 @@ await connection.OpenAsync();
 
 DataTable dt = new
 DataTable
-("schema_compositeType"); // TableName is required
+("schema_compositeType"); // TableName is required!
 
 dt.Columns.Add(new DataColumn("Column1"));
 dt.Columns.Add(new DataColumn("Column2"));
@@ -36,9 +34,9 @@ dt.Rows.Add("Column1_value", "Column2_value", "Column3_value");
 dt.Rows.Add("Column1_value", "Column2_value", "Column3_value");
 
 using (NpgsqlCommand cmd = new
-       NpgsqlCommand("CALL schema.storedProcedure(@arg)", connection))
+       NpgsqlCommand($"CALL schema.storedProcedure(@{ nameof(dt) })", connection))
 {
-    cmd.Parameters.Add(new NpgsqlParameter(nameof(arg), dt));
+    cmd.Parameters.Add(new NpgsqlParameter(nameof(dt), dt));
 
     cmd.ExecuteNonQuery();
 }
