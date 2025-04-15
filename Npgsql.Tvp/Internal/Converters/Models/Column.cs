@@ -4,7 +4,7 @@ using System;
 
 namespace Npgsql.Tvp.Internal.Converters.Models
 {
-    internal readonly struct Field(object value, PgTypeInfo pgTypeInfo)
+    internal readonly struct Column(object value, PgTypeInfo pgTypeInfo)
     {
         /// <summary>
         /// Size of the column headers.
