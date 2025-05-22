@@ -1,6 +1,8 @@
 ﻿using Npgsql.Internal;
 
 using Npgsql.Tvp.Internal.Converters;
+using Npgsql.Tvp.Internal.Converters.Models;
+
 using Npgsql.Tvp.Internal.Resolvers.Abstract;
 
 using System.Data;
@@ -14,7 +16,7 @@ namespace Npgsql.Tvp.Internal.Resolvers
         /// <inheritdoc/>
         protected override string GetDataTypeName(DataTable value)
         {
-            return value.TableName;
+            return value.GetDataTypeName();
         }
 
         /// <inheritdoc/>

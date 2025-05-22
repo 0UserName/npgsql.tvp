@@ -25,20 +25,14 @@ namespace Npgsql.Tvp.Internal.Converters.Models
             get => pgTypeInfo.PgTypeId.Value.Oid.Value;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public object Item
         {
             get => item;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public bool IsDbNull
         {
-            get => item == DBNull.Value;
+            get => item == default || item == DBNull.Value;
         }
 
         /// <summary>
@@ -49,17 +43,11 @@ namespace Npgsql.Tvp.Internal.Converters.Models
             get => this.GetSizeOrDbNullAsObject(default);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public PgConverter Converter
         {
             get => pgTypeInfo.GetObjectResolution(item).Converter;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         public BufferRequirements BufferRequirements
         {
             get => pgTypeInfo.GetBufferRequirements(Converter, DataFormat.Binary) ?? throw new NotSupportedException($"Binary format is not supported: { pgTypeInfo.PgTypeId }");

@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Npgsql.Tvp.Internal.Converters.Models.Contracts
+﻿namespace Npgsql.Tvp.Internal.Converters.Models.Contracts
 {
-    internal interface IParameter : IDisposable
+    internal interface IParameter
     {
         int ColumnsCount
         {

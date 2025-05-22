@@ -1,6 +1,8 @@
 ﻿using Npgsql.Internal;
 
 using Npgsql.Tvp.Internal.Converters;
+using Npgsql.Tvp.Internal.Converters.Models;
+
 using Npgsql.Tvp.Internal.Resolvers.Abstract;
 
 using System.Data.Common;
@@ -14,7 +16,7 @@ namespace Npgsql.Tvp.Internal.Resolvers
         /// <inheritdoc/>
         protected override string GetDataTypeName(DbDataReader value)
         {
-            return value.GetSchemaTable().TableName;
+            return value.GetDataTypeName();
         }
 
         /// <inheritdoc/>
