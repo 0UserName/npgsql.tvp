@@ -23,7 +23,7 @@ namespace Npgsql.Tvp.Internal.Converters.Models
         /// <inheritdoc/>
         public override Value this[int row, int column]
         {
-            get => new Value(value.Rows[row][column], Options.GetDefaultTypeInfo(value.Columns[column].DataType));
+            get => CreateValue(value.Rows[row][column], value.Columns[column].DataType);
         }
     }
 }

@@ -29,7 +29,7 @@ await connection.OpenAsync();
 
 DataTable dt = new
 DataTable
-("schema_compositeType"); // TableName is required!
+("schema.compositeType"); // TableName is required!
 
 dt.Columns.Add(new DataColumn("Column1"));
 dt.Columns.Add(new DataColumn("Column2"));

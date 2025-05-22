@@ -10,7 +10,9 @@ namespace Npgsql.Tvp.Internal.Converters.Models
         private extern static Size GetSizeAsObject(PgConverter converter, SizeContext context, object value, ref object writeState);
 
         /// <summary>
-        /// Gets the size of the item in bytes.
+        /// Gets a size 
+        /// of the item 
+        /// in bytes.
         /// </summary>
         public static int GetSizeOrDbNullAsObject(this in Value value, object writeState)
         {

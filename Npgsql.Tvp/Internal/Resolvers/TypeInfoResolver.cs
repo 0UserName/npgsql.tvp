@@ -14,8 +14,8 @@ namespace Npgsql.Tvp.Internal.Resolvers
         {
             switch (type)
             {
-                case Type t when t.IsAssignableTo(typeof(DataTable   )): return new PgResolverTypeInfo(options, new DTConverterResolver(options), default);
-                case Type t when t.IsAssignableTo(typeof(DbDataReader)): return new PgResolverTypeInfo(options, new DRConverterResolver(options), default);
+                case Type t when t.IsAssignableTo(typeof(DataTable   )): return new PgResolverTypeInfo(options, new DTConverterResolver(options), default, type);
+                case Type t when t.IsAssignableTo(typeof(DbDataReader)): return new PgResolverTypeInfo(options, new DRConverterResolver(options), default, type);
 
                 default: return default;
             }
