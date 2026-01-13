@@ -1,0 +1,41 @@
+name: Release
+
+
+on:
+  push:
+    tags: ["*.*.*"]
+
+
+# Sets permissions of
+# the GITHUB_TOKEN to
+# allow deployment to
+# GPR.
+permissions:
+  packages: write
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - name: Pull
+        uses: actions/checkout@v6
+
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.x
+          source-url: https://nuget.pkg.github.com/0UserName/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Make
+        run: dotnet build -c Release -p:GeneratePackageOnBuild=true -p:Version='${{ github.ref_name }}' -p:Authors='${{ github.repository_owner }}' -p:Description='${{ vars.PACKAGE_DESCRIPTION }}' -p:RepositoryUrl='${{ github.server_url }}/${{ github.repository }}' -p:RepositoryCommit='${{ github.sha }}'
+
+
+      - name: Push
+        run: dotnet nuget push **/*.nupkg
