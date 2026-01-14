@@ -23,8 +23,7 @@ namespace Npgsql.Tvp.Internal.Converters.Models.Abstracts
         /// <inheritdoc/>
         public int RowsCount
         {
-            get;
-            private set;
+            get => Buffer.Written / columnsCount;
         }
 
         /// <inheritdoc/>
@@ -77,8 +76,6 @@ namespace Npgsql.Tvp.Internal.Converters.Models.Abstracts
         public int GetSize()
         {
             FillBuffer();
-
-            RowsCount = Buffer.Written / columnsCount;
 
             return MetadataSize + Buffer.Size;
         }

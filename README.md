@@ -35,8 +35,10 @@ dt.Rows.Add("Column1_value", "Column2_value", "Column3_value");
 dt.Rows.Add("Column1_value", "Column2_value", "Column3_value");
 dt.Rows.Add("Column1_value", "Column2_value", "Column3_value");
 
-using (NpgsqlCommand cmd = new NpgsqlCommand($"CALL schema.storedProcedure(@{ nameof(dt) })", connection))
+using (NpgsqlCommand cmd = new NpgsqlCommand("schema.storedProcedure", connection))
 {
+    cmd.CommandType = CommandType.StoredProcedure;
+
     cmd.Parameters.Add(new NpgsqlParameter(nameof(dt), dt));
 
     await cmd.ExecuteNonQueryAsync();
@@ -50,10 +52,10 @@ The plugin processes the parameter as an array of a composite type that was prev
 
 
 ```sql
-CREATE PROCEDURE schema.storedProcedure(IN params schema.compositeType[])
+CREATE PROCEDURE schema.storedProcedure(IN dt schema.compositeType[])
 ```
 
 
 
 > [!NOTE]
-> Specifying types via [NpgsqlParameter.DataTypeName](https://www.npgsql.org/doc/api/Npgsql.NpgsqlParameter.html#Npgsql_NpgsqlParameter_DataTypeName) is not supported. For `DataTable`, the [TableName](https://learn.microsoft.com/ru-ru/dotnet/api/system.data.datatable.tablename?view=net-10.0) property is used; for `DbDataReader`, the [GetSchemaTable](https://learn.microsoft.com/en-us/dotnet/api/system.data.datatablereader.getschematable?view=net-10.0) method must be implemented.
+> Specifying types via [NpgsqlParameter.DataTypeName](https://www.npgsql.org/doc/api/Npgsql.NpgsqlParameter.html#Npgsql_NpgsqlParameter_DataTypeName) is not supported. For `DataTable`, use [TableName](https://learn.microsoft.com/ru-ru/dotnet/api/system.data.datatable.tablename?view=net-10.0); for `DbDataReader`, implement [GetSchemaTable](https://learn.microsoft.com/en-us/dotnet/api/system.data.datatablereader.getschematable?view=net-10.0).
