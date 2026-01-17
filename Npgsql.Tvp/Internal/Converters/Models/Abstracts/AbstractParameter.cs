@@ -81,7 +81,7 @@ namespace Npgsql.Tvp.Internal.Converters.Models.Abstracts
         }
 
         /// <inheritdoc/>
-        public virtual void Dispose()
+        public void Dispose()
         {
             Buffer.Dispose();
         }
