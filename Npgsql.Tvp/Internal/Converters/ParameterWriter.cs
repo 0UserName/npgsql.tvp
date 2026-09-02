@@ -1,7 +1,10 @@
 ﻿using Npgsql.Internal;
 
-using Npgsql.Tvp.Internal.Converters.Models;
-using Npgsql.Tvp.Internal.Converters.Models.Contracts;
+using Npgsql.Tvp.Internal.Converters.Binders;
+
+using Npgsql.Tvp.Internal.Converters.Parameters.Contracts;
+
+using System.Runtime.CompilerServices;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,12 +13,24 @@ namespace Npgsql.Tvp.Internal.Converters
 {
     internal static class ParameterWriter
     {
+        /// <summary>
+        /// Writes the column value to the driver buffer.
+        /// </summary>
+        /// 
+        /// <remarks>
+        /// Called only through an expression-built lambda, not invoked directly.
+        /// </remarks>
+        public static ValueTask WriteValueAsync<T>(PgConverter converter, PgWriter writer, IStrongBox box, CancellationToken cancellationToken = default)
+        {
+            return ((PgConverter<T>)converter).WriteAsync(writer, ((StrongBox<T>)box).Value, cancellationToken);
+        }
+
         public static async ValueTask WriteAsync(PgWriter writer, CancellationToken cancellationToken)
         {
             using (IParameter parameter = (IParameter)writer.Current.WriteState)
             {
-                int cCount = parameter.ColumnsCount;
-                int rCount = parameter.RowsCount;
+                int columns = parameter.Columns;
+                int rows = parameter.Rows;
 
                 if (writer.ShouldFlush(parameter.MetadataSize))
                 {
@@ -25,10 +40,10 @@ namespace Npgsql.Tvp.Internal.Converters
                 writer.WriteInt32(Constants.DIMENSIONS);
                 writer.WriteInt32(Constants.FLAGS);
                 writer.WriteUInt32(parameter.OID);
-                writer.WriteInt32(rCount);
+                writer.WriteInt32(rows);
                 writer.WriteInt32(Constants.LOWER_BOUND);
 
-                for (int i = 0; i < rCount; i++)
+                for (int i = 0; i < rows; i++)
                 {
                     if (writer.ShouldFlush(sizeof(int) + sizeof(int)))
                     {
@@ -36,27 +51,27 @@ namespace Npgsql.Tvp.Internal.Converters
                     }
 
                     writer.WriteInt32(parameter[i]);
-                    writer.WriteInt32(cCount);
+                    writer.WriteInt32(columns);
 
-                    for (int j = 0; j < cCount; j++)
+                    for (int j = 0; j < columns; j++)
                     {
                         if (writer.ShouldFlush(sizeof(uint) + sizeof(int)))
                         {
                             await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
                         }
 
-                        Value value = parameter[i, j];
+                        ref Writable writable = ref parameter.GetMoveNext();
 
-                        int size = value.BufferRequirement.Value;
+                        writable.Deconstruct(out uint oid, out int size, out IStrongBox box, out PgConverter converter, out object writeState);
 
-                        writer.WriteUInt32(value.OID);
+                        writer.WriteUInt32(oid);
                         writer.WriteInt32(size);
 
                         if (size != Constants.NULL_SIZE)
                         {
-                            using (await writer.BeginNestedWriteAsync(value.BufferRequirement, size, value.WriteState, cancellationToken).ConfigureAwait(false))
+                            using (await writer.BeginNestedWriteAsync(size, size, writeState, cancellationToken).ConfigureAwait(false))
                             {
-                                await Accessors.WriteAsObjectAsync(value.Converter, writer, value.UnderlyingValue, cancellationToken).ConfigureAwait(false);
+                                await WritableBinder.Get(oid)(converter, writer, box, cancellationToken).ConfigureAwait(false);
                             }
                         }
                     }
