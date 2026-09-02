@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" standalone="yes"?>
+<NewDataSet>
+
+  <!-- Schema Definition -->
+  <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+	<xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:MainDataTable="dbo.table_valued_variable" msdata:UseCurrentLocale="true">
+	  <xs:complexType>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+		  <xs:element name="dbo.table_valued_variable">
+			<xs:complexType>
+			  <xs:sequence>
+				<xs:element name="Property1" type="xs:boolean"  minOccurs="0" />
+				<xs:element name="Property2" type="xs:int"      minOccurs="0" />
+				<xs:element name="Property3" type="xs:long"     minOccurs="0" />
+				<xs:element name="Property4" type="xs:string"   minOccurs="0" />
+				<xs:element name="Property5" type="xs:int"      minOccurs="0" />
+				<xs:element name="Property6" type="xs:dateTime" minOccurs="0" msdata:DateTimeMode="Utc"               />
+				<xs:element name="Property7" type="xs:dateTime" minOccurs="0" msdata:DateTimeMode="Unspecified"       />
+				<xs:element name="Property8" type="xs:anyType"  minOccurs="0" msdata:DataType="System.DateTimeOffset" />
+			  </xs:sequence>
+			</xs:complexType>
+		  </xs:element>
+		</xs:choice>
+	  </xs:complexType>
+	</xs:element>
+  </xs:schema>
+
+  <!-- Data Rows -->
+  <dbo.table_valued_variable>
+	<Property1>true</Property1>
+	<Property2>1</Property2>
+	<Property3>2</Property3>
+	<Property4>String1</Property4>
+	<Property6>2026-03-02T18:05:43.8319795Z</Property6>
+	<Property7>2026-03-02T18:05:43.8319795</Property7>
+	<Property8>2026-03-02T18:05:43.8319795+00:00</Property8>
+  </dbo.table_valued_variable>
+
+  <dbo.table_valued_variable>
+	<Property1>true</Property1>
+	<Property2>2</Property2>
+	<Property3>3</Property3>
+	<Property4>String2</Property4>
+	<Property6>2026-03-02T18:05:43.8319795Z</Property6>
+	<Property7>2026-03-02T18:05:43.8319795</Property7>
+	<Property8>2026-03-02T18:05:43.8319795+00:00</Property8>
+  </dbo.table_valued_variable>
+
+  <dbo.table_valued_variable>
+	<Property1>true</Property1>
+	<Property2>3</Property2>
+	<Property3>4</Property3>
+	<Property4>String3</Property4>
+	<Property6>2026-03-02T18:05:43.8319795Z</Property6>
+	<Property7>2026-03-02T18:05:43.8319795</Property7>
+	<Property8>2026-03-02T18:05:43.8319795+00:00</Property8>
+  </dbo.table_valued_variable>
+
+  <dbo.table_valued_variable>
+	<Property1>true</Property1>
+	<Property2>4</Property2>
+	<Property3>5</Property3>
+	<Property4>String4</Property4>
+	<Property6>2026-03-02T18:05:43.8319795Z</Property6>
+	<Property7>2026-03-02T18:05:43.8319795</Property7>
+	<Property8>2026-03-02T18:05:43.8319795+00:00</Property8>
+  </dbo.table_valued_variable>
+
+  <dbo.table_valued_variable>
+	<Property1>true</Property1>
+	<Property2>5</Property2>
+	<Property3>6</Property3>
+	<Property4>String5</Property4>
+	<Property6>2026-03-02T18:05:43.8319795Z</Property6>
+	<Property7>2026-03-02T18:05:43.8319795</Property7>
+	<Property8>2026-03-02T18:05:43.8319795+00:00</Property8>
+  </dbo.table_valued_variable>
+
+</NewDataSet>

@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+	<!-- Integration of test framework adapters with test environment (Visual Studio, dotnet CLI) -->
+	<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+	<!-- Integration of test framework adapters with test environment (Visual Studio, dotnet CLI) -->
+
+	<!-- Integration of PostgreSQL Docker containers with test environment (Visual Studio, dotnet CLI) -->
+	<PackageReference Include="Testcontainers.Ado.PostgreSql" Version="0.1.0" />
+	<!-- Integration of PostgreSQL Docker containers with test environment (Visual Studio, dotnet CLI) -->
+
+	<!-- NUnit wrapper for Testcontainers.Ado -->
+	<PackageReference Include="Testcontainers.Ado.NUnit" Version="0.1.0" />
+	<!-- NUnit wrapper for Testcontainers.Ado -->
+
+	<!-- NUnit -->
+	<PackageReference Include="NUnit.Analyzers"   Version="4.14.0" />
+	<PackageReference Include="NUnit3TestAdapter" Version="6.2.0"  />
+	<!-- NUnit -->
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\Npgsql.Tvp\Npgsql.Tvp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<None Include="Data\*;Init\*">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+  </ItemGroup>
+
+</Project>
